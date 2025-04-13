@@ -1,5 +1,5 @@
 import './App.css'
-import {TodolistItem} from "./TodolistItem.tsx";
+import {TodolistItem} from "./Components/TodolistItem.tsx";
 import {useState} from "react";
 import {v1} from "uuid";
 
@@ -38,6 +38,13 @@ export const App = () => {
         setTasks([newTask, ...tasks])
     }
 
+    const changeTaskStatus = (id: string, newStatusValue: boolean) => {
+        let changedTasks: TaskType[] = tasks.map(t => {
+            return t.id === id ? {...t, isDone: newStatusValue} : t
+        })
+        setTasks([...changedTasks])
+    }
+
     return (
         <div className={'app'}>
             <TodolistItem
@@ -46,6 +53,7 @@ export const App = () => {
                 deleteTask={deleteTask}
                 deleteAllTasks={deleteAllTasks}
                 createButtonClick={createTask}
+                changeTaskStatus={changeTaskStatus}
             />
             <TodolistItem
                 title="asfsdf"
@@ -53,13 +61,12 @@ export const App = () => {
                 deleteTask={deleteTask}
                 deleteAllTasks={deleteAllTasks}
                 createButtonClick={createTask}
+                changeTaskStatus={changeTaskStatus}
             >
                 <div>
                     <div>Many intresting information</div>
                 </div>
             </TodolistItem>
-            {/* <TodolistItem title="Songs" tasks={tasks2}/>
-            <TodolistItem title="Books" tasks={tasks2}/>*/}
         </div>
     )
 }
