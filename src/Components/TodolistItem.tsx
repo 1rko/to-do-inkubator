@@ -4,6 +4,7 @@ import {ChangeEvent} from "react";
 import {useAutoAnimate} from '@formkit/auto-animate/react'
 import './../App.css'
 import {CreateItemForm} from "./сreateItemForm/CreateItemForm.tsx";
+import {EditableSpan} from "./editableSpan/EditableSpan.tsx";
 
 type Props = {
     todolist: Todolist
@@ -12,8 +13,10 @@ type Props = {
     deleteAllTasks: (todolistId: string) => void
     createTask: (todolistId: string, title: string) => void
     changeTaskStatus: (todolistId: string, id: string, newStatusValue: boolean) => void
+    changeTaskTitle: (todolistId: string, id: string, newValue: string) => void
     changeFilter: (todolistId: string, filter: FilterValues) => void
     deleteTodolist: (todolistId: string) => void
+    changeTodolistTitle: (todolistId: string, newValue: string) => void
     children?: React.ReactNode
 }
 
@@ -28,6 +31,8 @@ export const TodolistItem: React.FC<Props> = ({
                                                   changeFilter,
                                                   changeTaskStatus,
                                                   deleteTodolist,
+                                                  changeTaskTitle,
+                                                  changeTodolistTitle
                                               }: Props) => {
 
     const changeFilterHandler = (filter: FilterValues) => {
@@ -35,8 +40,8 @@ export const TodolistItem: React.FC<Props> = ({
         /*setFilter(filter)*/
     }
 
-    const createTaskHandler = (title:string) => {
-            createTask(todolist.id, title)
+    const createTaskHandler = (title: string) => {
+        createTask(todolist.id, title)
     }
 
     const deleteTaskHandler = (taskId: string) => {
@@ -76,7 +81,16 @@ export const TodolistItem: React.FC<Props> = ({
         deleteTodolist(todolist.id)
     }
 
+    const changeTodolistHandler = (newTitle:string) => {
+        changeTodolistTitle(todolist.id, newTitle)
+    }
+
     let renderedTasks = getFilteredTasks(tasks).map(task => {
+
+        const changeTaskTitleHandler = (title: string) => {
+            changeTaskTitle(todolist.id, task.id, title)
+        }
+
         return (
             <li key={task.id} className={task.isDone ? 'is-done' : ''}>
                 <input
@@ -84,9 +98,10 @@ export const TodolistItem: React.FC<Props> = ({
                     checked={task.isDone}
                     onChange={(e) => changeTaskStatusHandler(e, task.id)}
                 />
-                <span>
-                    {task.title + ' '}
-                </span>
+                <EditableSpan
+                    value={task.title}
+                    onChange={changeTaskTitleHandler}
+                />
                 <Button
                     title={'x'}
                     onClick={() => deleteTaskHandler(task.id)}
@@ -100,7 +115,9 @@ export const TodolistItem: React.FC<Props> = ({
     return (<>
             <div>
                 <div className={'container'}>
-                    <h3>{todolist.title}</h3>
+                    <h3>
+                        <EditableSpan value={todolist.title} onChange={changeTodolistHandler}/>
+                    </h3>
                     <Button title={'x'} onClick={deleteTodolistHandler}/>
                 </div>
 

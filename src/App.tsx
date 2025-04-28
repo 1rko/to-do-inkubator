@@ -93,10 +93,24 @@ export const App = () => {
     }
 
     const changeTaskStatus = (todolistId: string, taskId: string, newStatusValue: boolean) => {
-        let changedTasks: Task[] = tasks[todolistId].map(t => {
+        let changedTask: Task[] = tasks[todolistId].map(t => {
             return t.id === taskId ? {...t, isDone: newStatusValue} : t
         })
-        setTasks({...tasks, [todolistId]: changedTasks})
+        setTasks({...tasks, [todolistId]: changedTask})
+    }
+
+    const changeTaskTitle = (todolistId: string, taskId: string, newValue: string) => {
+        let changedTask: Task[] = tasks[todolistId].map(t => {
+            return t.id === taskId ? {...t, title:newValue} : t
+        })
+        setTasks({...tasks, [todolistId]: changedTask})
+    }
+
+    const changeTodolistTitle = (todolistId: string, newValue: string) => {
+        let changedTodolists: Todolist[] = todolists.map(t => {
+            return t.id === todolistId ? {...t, title:newValue, } : t
+        })
+        setTodolists([...changedTodolists])
     }
 
     const deleteTodolist = (todolistId: string) => {
@@ -108,7 +122,7 @@ export const App = () => {
     return (
         <div className={'app'}>
             <div>
-                <span>Create Todolist</span>
+                <h3>Create Todolist</h3>
                 <CreateItemForm onCreateItem={createTodolist}/>
             </div>
 
@@ -120,8 +134,10 @@ export const App = () => {
                               deleteAllTasks={deleteAllTasks}
                               createTask={createTask}
                               changeTaskStatus={changeTaskStatus}
+                              changeTaskTitle={changeTaskTitle}
                               changeFilter={changeFilter}
                               deleteTodolist={deleteTodolist}
+                              changeTodolistTitle={changeTodolistTitle}
                 />
             ))}
         </div>
