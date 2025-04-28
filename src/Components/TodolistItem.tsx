@@ -1,76 +1,56 @@
-import type {TaskType} from '../App.tsx'
+import {FilterValues, Task, Todolist} from '../App.tsx'
 import {Button} from './Button.tsx'
-import {ChangeEvent, useState, KeyboardEvent} from "react";
+import {ChangeEvent} from "react";
 import {useAutoAnimate} from '@formkit/auto-animate/react'
-import {FullInput} from "./FullInput.tsx";
 import './../App.css'
+import {CreateItemForm} from "./сreateItemForm/CreateItemForm.tsx";
 
 type Props = {
-    title: string
-    tasks: TaskType[]
-    deleteTask: (id: string) => void
-    deleteAllTasks: () => void
-    createButtonClick: (title: string) => void
-    changeTaskStatus: (id: string, newStatusValue: boolean) => void
-
+    todolist: Todolist
+    tasks: Task[]
+    deleteTask: (todolistId: string, taskId: string) => void
+    deleteAllTasks: (todolistId: string) => void
+    createTask: (todolistId: string, title: string) => void
+    changeTaskStatus: (todolistId: string, id: string, newStatusValue: boolean) => void
+    changeFilter: (todolistId: string, filter: FilterValues) => void
+    deleteTodolist: (todolistId: string) => void
     children?: React.ReactNode
 }
 
-type FilterType = 'ALL' | 'ACTIVE' | 'COMPLETED' | 'FIRST3'
-
-type Error = string | null
-
 export const TodolistItem: React.FC<Props> = ({
                                                   children,
-                                                  title,
+                                                  /*title,*/
+                                                  todolist,
                                                   tasks,
                                                   deleteTask,
                                                   deleteAllTasks,
-                                                  createButtonClick,
-                                                  changeTaskStatus: changeTaskStatus
+                                                  createTask,
+                                                  changeFilter,
+                                                  changeTaskStatus,
+                                                  deleteTodolist,
                                               }: Props) => {
 
-    const [taskTitle, setTaskTitle] = useState('')
-    const [filter, setFilter] = useState('ALL' as FilterType)
-    const [error, setError] = useState<Error>(null)
-
-    const changeFilterHandler = (filter: FilterType) => {
-        setFilter(filter)
+    const changeFilterHandler = (filter: FilterValues) => {
+        changeFilter(todolist.id, filter)
+        /*setFilter(filter)*/
     }
 
-    const createTaskHandler = () => {
-        const trimmedTitle = taskTitle.trim()
-        if (trimmedTitle.trim() !== '') {
-            createButtonClick(trimmedTitle)
-            setTaskTitle('')
-        } else {
-            setError('Task title is required')
-        }
-    }
-
-    const createTaskOnEnterHandler = (e: KeyboardEvent<HTMLInputElement>) => {
-        if (e.key === 'Enter') {
-            createTaskHandler()
-        }
-    }
-
-    const changeTaskTitleHandler = (e: ChangeEvent<HTMLInputElement>) => {
-        setTaskTitle(e.currentTarget.value)
-        setError(null)
+    const createTaskHandler = (title:string) => {
+            createTask(todolist.id, title)
     }
 
     const deleteTaskHandler = (taskId: string) => {
-        deleteTask(taskId)
+        deleteTask(todolist.id, taskId)
     }
 
     const deleteAllTasksHandler = () => {
-        deleteAllTasks()
+        deleteAllTasks(todolist.id)
     }
 
-    const getFilteredTasks = (tasks: TaskType[]): TaskType[] => {
-        let filteredTasks: TaskType[] = []
+    const getFilteredTasks = (tasks: Task[]): Task[] => {
+        let filteredTasks: Task[] = []
 
-        switch (filter) {
+        switch (todolist.filter) {
             case "ALL":
                 filteredTasks = tasks
                 break
@@ -89,12 +69,16 @@ export const TodolistItem: React.FC<Props> = ({
 
     const changeTaskStatusHandler = (e: ChangeEvent<HTMLInputElement>, taskId: string) => {
         let newStatusValue = e.currentTarget.checked
-        changeTaskStatus(taskId, newStatusValue)
+        changeTaskStatus(todolist.id, taskId, newStatusValue)
+    }
+
+    const deleteTodolistHandler = () => {
+        deleteTodolist(todolist.id)
     }
 
     let renderedTasks = getFilteredTasks(tasks).map(task => {
         return (
-            <li key={task.id} className={task.isDone?'is-done':''}>
+            <li key={task.id} className={task.isDone ? 'is-done' : ''}>
                 <input
                     type="checkbox"
                     checked={task.isDone}
@@ -115,14 +99,12 @@ export const TodolistItem: React.FC<Props> = ({
 
     return (<>
             <div>
-                <h3>{title}</h3>
-                <FullInput value={taskTitle}
-                           onChangeInput={changeTaskTitleHandler}
-                           onKeyDownInput={createTaskOnEnterHandler}
-                           onButtonClick={createTaskHandler}
-                           error={error}
-                />
-                {error && <span className={"error-message"}>{error}</span>}
+                <div className={'container'}>
+                    <h3>{todolist.title}</h3>
+                    <Button title={'x'} onClick={deleteTodolistHandler}/>
+                </div>
+
+                <CreateItemForm onCreateItem={createTaskHandler}/>
 
                 {renderedTasks.length === 0 ? (
                     <p>Тасок нет</p>
@@ -135,23 +117,23 @@ export const TodolistItem: React.FC<Props> = ({
                     <Button
                         title={'All'}
                         onClick={() => changeFilterHandler('ALL')}
-                        className={(filter === 'ALL') ? 'active-filter' : ''}
+                        className={(todolist.filter === 'ALL') ? 'active-filter' : ''}
                     />
                     <Button
                         title={'Active'}
                         onClick={() => changeFilterHandler('ACTIVE')}
-                        className={(filter === 'ACTIVE') ? 'active-filter' : ''}
+                        className={(todolist.filter === 'ACTIVE') ? 'active-filter' : ''}
                     />
 
                     <Button
                         title={'Completed'}
                         onClick={() => changeFilterHandler('COMPLETED')}
-                        className={(filter === 'COMPLETED') ? 'active-filter' : ''}
+                        className={(todolist.filter === 'COMPLETED') ? 'active-filter' : ''}
                     />
                     <Button
                         title={'First 3 tasks'}
                         onClick={() => changeFilterHandler('FIRST3')}
-                        className={(filter === 'FIRST3') ? 'active-filter' : ''}
+                        className={(todolist.filter === 'FIRST3') ? 'active-filter' : ''}
                     />
                     <Button
                         title={'DELETE ALL TASKS'}

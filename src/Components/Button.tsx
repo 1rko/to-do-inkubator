@@ -2,7 +2,7 @@ import {ButtonHTMLAttributes} from "react";
 
 type ButtonProps = {
     title: string
-    onClick: () => void
+    onClick: (...args: any) => void
     disabled?: boolean
 }
 
