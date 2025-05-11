@@ -1,10 +1,18 @@
 import {FilterValues, Task, Todolist} from '../App.tsx'
-import {Button} from './Button.tsx'
 import {ChangeEvent} from "react";
 import {useAutoAnimate} from '@formkit/auto-animate/react'
 import './../App.css'
 import {CreateItemForm} from "./сreateItemForm/CreateItemForm.tsx";
 import {EditableSpan} from "./editableSpan/EditableSpan.tsx";
+
+import IconButton from '@mui/material/IconButton'
+import DeleteIcon from '@mui/icons-material/Delete'
+import Button from '@mui/material/Button'
+import Checkbox from '@mui/material/Checkbox';
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem'
+import Box from '@mui/material/Box'
+import {containerSx, getListItemSx} from "./сreateItemForm/TodolistItem.styles.ts";
 
 type Props = {
     todolist: Todolist
@@ -22,7 +30,7 @@ type Props = {
 
 export const TodolistItem: React.FC<Props> = ({
                                                   children,
-                                                  /*title,*/
+
                                                   todolist,
                                                   tasks,
                                                   deleteTask,
@@ -37,7 +45,6 @@ export const TodolistItem: React.FC<Props> = ({
 
     const changeFilterHandler = (filter: FilterValues) => {
         changeFilter(todolist.id, filter)
-        /*setFilter(filter)*/
     }
 
     const createTaskHandler = (title: string) => {
@@ -81,7 +88,7 @@ export const TodolistItem: React.FC<Props> = ({
         deleteTodolist(todolist.id)
     }
 
-    const changeTodolistHandler = (newTitle:string) => {
+    const changeTodolistHandler = (newTitle: string) => {
         changeTodolistTitle(todolist.id, newTitle)
     }
 
@@ -91,34 +98,50 @@ export const TodolistItem: React.FC<Props> = ({
             changeTaskTitle(todolist.id, task.id, title)
         }
 
+        const deleteOneTaskHandler = () => {
+            deleteTaskHandler(task.id)
+        }
+
         return (
-            <li key={task.id} className={task.isDone ? 'is-done' : ''}>
-                <input
+            <ListItem
+                key={task.id}
+                sx={getListItemSx(task.isDone)}
+                disablePadding
+            >
+                <Checkbox
+                    checked={task.isDone}
+                    onChange={(e) => changeTaskStatusHandler(e, task.id)}
+                    inputProps={{'aria-label': 'controlled'}}
+                    size={'small'}
+                />
+                {/*<input
                     type="checkbox"
                     checked={task.isDone}
                     onChange={(e) => changeTaskStatusHandler(e, task.id)}
-                />
+                />*/}
                 <EditableSpan
                     value={task.title}
                     onChange={changeTaskTitleHandler}
                 />
-                <Button
-                    title={'x'}
-                    onClick={() => deleteTaskHandler(task.id)}
-                />
-            </li>
+                <IconButton onClick={deleteOneTaskHandler}>
+                    <DeleteIcon/>
+                </IconButton>
+            </ListItem>
         )
     })
 
     const [listRef] = useAutoAnimate<HTMLUListElement>()
 
+    // @ts-ignore
     return (<>
             <div>
                 <div className={'container'}>
                     <h3>
                         <EditableSpan value={todolist.title} onChange={changeTodolistHandler}/>
                     </h3>
-                    <Button title={'x'} onClick={deleteTodolistHandler}/>
+                    <IconButton onClick={deleteTodolistHandler}>
+                        <DeleteIcon/>
+                    </IconButton>
                 </div>
 
                 <CreateItemForm onCreateItem={createTaskHandler}/>
@@ -126,38 +149,47 @@ export const TodolistItem: React.FC<Props> = ({
                 {renderedTasks.length === 0 ? (
                     <p>Тасок нет</p>
                 ) : (
-                    <ul ref={listRef}>
+                    <List ref={listRef}>
                         {renderedTasks}
-                    </ul>
+                    </List>
                 )}
-                <div>
-                    <Button
-                        title={'All'}
-                        onClick={() => changeFilterHandler('ALL')}
-                        className={(todolist.filter === 'ALL') ? 'active-filter' : ''}
-                    />
-                    <Button
-                        title={'Active'}
-                        onClick={() => changeFilterHandler('ACTIVE')}
-                        className={(todolist.filter === 'ACTIVE') ? 'active-filter' : ''}
-                    />
-
-                    <Button
-                        title={'Completed'}
-                        onClick={() => changeFilterHandler('COMPLETED')}
-                        className={(todolist.filter === 'COMPLETED') ? 'active-filter' : ''}
-                    />
-                    <Button
-                        title={'First 3 tasks'}
-                        onClick={() => changeFilterHandler('FIRST3')}
-                        className={(todolist.filter === 'FIRST3') ? 'active-filter' : ''}
-                    />
-                    <Button
-                        title={'DELETE ALL TASKS'}
-                        onClick={deleteAllTasksHandler}/>
-                </div>
+                <Box sx={containerSx}>
+                    <Button variant={todolist.filter === 'ALL' ? 'outlined' : 'text'}
+                            color={'inherit'}
+                            onClick={() => changeFilterHandler('ALL')}
+                            sx={{m: '0 3px'}}
+                    >
+                        All
+                    </Button>
+                    <Button variant={todolist.filter === 'ACTIVE' ? 'outlined' : 'text'}
+                            color={'primary'}
+                            onClick={() => changeFilterHandler('ACTIVE')}
+                            sx={{m: '0 3px'}}>
+                        ACTIVE
+                    </Button>
+                    <Button variant={todolist.filter === 'COMPLETED' ? 'outlined' : 'text'}
+                            color={'secondary'}
+                            onClick={() => changeFilterHandler('COMPLETED')}
+                            sx={{m: '0 3px'}}>
+                        COMPLETED
+                    </Button>
+                    {/* <Button variant={todolist.filter === 'FIRST3' ? 'outlined' : 'text'}
+                            color={'success'}
+                            onClick={() => changeFilterHandler('FIRST3')}
+                            sx={{m: '0 3px'}}>
+                        First 3 tasks
+                    </Button>
+                    <Button variant={'contained'}
+                            color={'error'}
+                            onClick={deleteAllTasksHandler}
+                            sx={{m: '0 3px'}}>
+                        DELETE ALL TASKS
+                    </Button>*/}
+                </Box>
             </div>
-            {children}
+            {
+                children
+            }
         </>
     )
 }

@@ -1,6 +1,9 @@
-import {Button} from "./Button.tsx";
 import {ChangeEvent, KeyboardEvent} from "react";
 import '../App.css'
+import TextField from "@mui/material/TextField";
+
+import AddBoxIcon from '@mui/icons-material/AddBox'
+import IconButton from '@mui/material/IconButton'
 
 type Props = {
     value: string
@@ -18,25 +21,23 @@ export const FullInput = (props: Props) => {
         onChangeInput,
         onKeyDownInput,
         onButtonClick,
-        buttonTitle,
         error,
-        buttonClassName
     } = props
     return (
         <div>
-            <input
-                value={value}
-                onChange={onChangeInput}
-                onKeyDown={onKeyDownInput}
-                className={error ? 'error' : ''}
-            />
-            {error && <span className={"error-message"}>{error}</span>}
-            <Button
-                title={buttonTitle}
-                onClick={onButtonClick}
-                disabled={!value}
-                className={buttonClassName}
-            />
+            <TextField label={'Enter a title'}
+                       variant={'outlined'}
+                       value={value}
+                       size={'small'}
+                       onChange={onChangeInput}
+                       onKeyDown={onKeyDownInput}
+                       error={!!error}
+                       helperText={error}
+                       autoFocus/>
+
+            <IconButton onClick={onButtonClick} color={'primary'}>
+                <AddBoxIcon />
+            </IconButton>
         </div>
     );
 };
