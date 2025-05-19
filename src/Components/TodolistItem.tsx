@@ -1,7 +1,7 @@
-import {FilterValues, Task, Todolist} from '../App.tsx'
+import {FilterValues, Task, Todolist} from '../app/App.tsx'
 import {ChangeEvent} from "react";
 import {useAutoAnimate} from '@formkit/auto-animate/react'
-import './../App.css'
+import '../app/App.css'
 import {CreateItemForm} from "./сreateItemForm/CreateItemForm.tsx";
 import {EditableSpan} from "./editableSpan/EditableSpan.tsx";
 

@@ -1,21 +1,21 @@
-import {v1} from 'uuid'
 import {beforeEach, expect, test} from 'vitest'
-import type {Todolist, FilterValues} from '../App'
+import type {Todolist, FilterValues} from '../app/App.tsx'
 import {
     createTodolistAC,
     deleteTodolistAC,
     todolistsReducer,
     changeTodolistTitleAC,
-    changeFilterAC
+    changeTodolistFilterAC
 } from './todolists-reducer'
+import {nanoid} from '@reduxjs/toolkit'
 
 let todolistId1: string
 let todolistId2: string
 let startState: Todolist[]
 
 beforeEach(() => {
-    todolistId1 = v1()
-    todolistId2 = v1()
+    todolistId1 = nanoid()
+    todolistId2 = nanoid()
 
     startState = [
         {id: todolistId1, title: 'What to learn', filter: 'ALL'},
@@ -24,7 +24,7 @@ beforeEach(() => {
 })
 
 test('correct todolist should be deleted', () => {
-    const endState = todolistsReducer(startState, deleteTodolistAC(todolistId1))
+    const endState = todolistsReducer(startState, deleteTodolistAC({id: todolistId1}))
 
     // 3. Проверка, что действие измененило state соответствующим образом
     // в массиве останется один тудулист
@@ -44,15 +44,15 @@ test('correct todolist should be created', () => {
 
 test('correct todolist should change its title', () => {
     const newTitle = 'New Title'
-    const endState = todolistsReducer(startState, changeTodolistTitleAC({id:todolistId2,title: newTitle}))
+    const endState = todolistsReducer(startState, changeTodolistTitleAC({id: todolistId2, title: newTitle}))
 
     expect(endState[0].title).toBe('What to learn')
     expect(endState[1].title).toBe(newTitle)
 })
 
 test('correct todolist should change its filter', () => {
-    const  filter: FilterValues = "COMPLETED"
-    const endState = todolistsReducer(startState, changeFilterAC({id: todolistId2, filter: filter}))
+    const filter: FilterValues = "COMPLETED"
+    const endState = todolistsReducer(startState, changeTodolistFilterAC({id: todolistId2, filter: filter}))
 
     expect(endState[0].filter).toBe('ALL')
     expect(endState[1].filter).toBe(filter)
