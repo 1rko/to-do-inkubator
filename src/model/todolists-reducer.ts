@@ -42,46 +42,6 @@ export const todolistsReducer = createReducer(initialState, builder => {
         })
 })
 
-/*
-export const todolistsReducer = (state: Todolist[] = initialState, action: Actions): Todolist[] => {
-    switch (action.type) {
-        case "todolists/deleteTodolist": {
-            return [...state.filter(t => t.id !== action.payload.id)]
-        }
-
-        case "'todolists/createTodolist": {
-            const {id, title} = action.payload
-            return [
-                ...state,
-                {
-                    id,
-                    title,
-                    filter: "ALL"
-                },
-            ]
-        }
-
-        case 'todolists/changeTodolistTitle' : {
-            const {id, title} = action.payload
-            let changedTodolists: Todolist[] = state.map(t => {
-                return t.id === id ? {...t, title} : t
-            })
-            return [...changedTodolists]
-        }
-
-        case "todolists/changeFilter": {
-            const {id, filter} = action.payload
-            let changedTodolists = state.map(tdl => {
-                return tdl.id === id ? {...tdl, filter} : tdl
-            })
-            return [...changedTodolists]
-        }
-
-        default:
-            return state
-    }
-}
-*/
 
 
 
