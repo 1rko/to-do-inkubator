@@ -16,20 +16,22 @@ import {useAppDispatch} from "@/common/hooks/useAppDispatch.ts";
 import {useAppSelector} from "@/common/hooks/useAppSelector.ts";
 import {selectTasks} from "@/model/tasks-selectors.ts";
 import {changeTaskStatusAC, changeTaskTitleAC, createTaskAC, deleteTaskAC, Task} from "@/model/tasks-reducer.ts";
-import {changeTodolistFilterAC, FilterValues, Todolist} from "@/model/todolists-reducer.ts";
+import {
+    changeTodolistFilterAC,
+    changeTodolistTitleAC,
+    deleteTodolistAC,
+    FilterValues,
+    Todolist
+} from "@/model/todolists-reducer.ts";
 
 type Props = {
     todolist: Todolist
-    deleteTodolist: (todolistId: string) => void
-    changeTodolistTitle: (todolistId: string, newValue: string) => void
     children?: React.ReactNode
 }
 
 export const TodolistItem: React.FC<Props> = ({
                                                   children,
                                                   todolist,
-                                                  deleteTodolist,
-                                                  changeTodolistTitle
                                               }: Props) => {
 
 
@@ -39,12 +41,25 @@ export const TodolistItem: React.FC<Props> = ({
 
     const todolistTasks = tasks[todolist.id]
 
-    const changeFilterHandler = (filter: FilterValues) => {
-        dispatch(changeTodolistFilterAC({id: todolist.id, filter}))
+    const deleteTodolist = () => {
+        dispatch(deleteTodolistAC({id: todolist.id}))
     }
 
-    const createTaskHandler = (title: string) => {
+    const changeTodolistTitle = (newValue: string) => {
+        dispatch(changeTodolistTitleAC({id: todolist.id, title: newValue}))
+    }
+
+    const createTask = (title: string) => {
         dispatch(createTaskAC({todolistId: todolist.id, title}))
+    }
+
+    const changeTaskStatus = (e: ChangeEvent<HTMLInputElement>, taskId: string) => {
+        let newStatusValue = e.currentTarget.checked
+        dispatch(changeTaskStatusAC({todolistId: todolist.id, taskId, isDone: newStatusValue}))
+    }
+
+    const changeFilter = (filter: FilterValues) => {
+        dispatch(changeTodolistFilterAC({id: todolist.id, filter}))
     }
 
     const getFilteredTasks = (tasks: Task[]): Task[] => {
@@ -64,26 +79,13 @@ export const TodolistItem: React.FC<Props> = ({
         return filteredTasks
     }
 
-    const changeTaskStatusHandler = (e: ChangeEvent<HTMLInputElement>, taskId: string) => {
-        let newStatusValue = e.currentTarget.checked
-        dispatch(changeTaskStatusAC({todolistId: todolist.id, taskId, isDone: newStatusValue}))
-    }
-
-    const deleteTodolistHandler = () => {
-        deleteTodolist(todolist.id)
-    }
-
-    const changeTodolistHandler = (newTitle: string) => {
-        changeTodolistTitle(todolist.id, newTitle)
-    }
-
     let renderedTasks = getFilteredTasks(todolistTasks).map(task => {
 
-        const changeTaskTitleHandler = (title: string) => {
+        const changeTaskTitle = (title: string) => {
             dispatch(changeTaskTitleAC({todolistId: todolist.id, taskId: task.id, title}))
         }
 
-        const deleteOneTaskHandler = () => {
+        const deleteOneTask = () => {
             dispatch(deleteTaskAC({todolistId: todolist.id, taskId: task.id}))
         }
 
@@ -95,15 +97,15 @@ export const TodolistItem: React.FC<Props> = ({
             >
                 <Checkbox
                     checked={task.isDone}
-                    onChange={(e) => changeTaskStatusHandler(e, task.id)}
+                    onChange={(e) => changeTaskStatus(e, task.id)}
                     inputProps={{'aria-label': 'controlled'}}
                     size={'small'}
                 />
                 <EditableSpan
                     value={task.title}
-                    onChange={changeTaskTitleHandler}
+                    onChange={changeTaskTitle}
                 />
-                <IconButton onClick={deleteOneTaskHandler}>
+                <IconButton onClick={deleteOneTask}>
                     <DeleteIcon/>
                 </IconButton>
             </ListItem>
@@ -117,14 +119,14 @@ export const TodolistItem: React.FC<Props> = ({
             <div>
                 <div className={'container'}>
                     <h3>
-                        <EditableSpan value={todolist.title} onChange={changeTodolistHandler}/>
+                        <EditableSpan value={todolist.title} onChange={changeTodolistTitle}/>
                     </h3>
-                    <IconButton onClick={deleteTodolistHandler}>
+                    <IconButton onClick={deleteTodolist}>
                         <DeleteIcon/>
                     </IconButton>
                 </div>
 
-                <CreateItemForm onCreateItem={createTaskHandler}/>
+                <CreateItemForm onCreateItem={createTask}/>
 
                 {renderedTasks.length === 0 ? (
                     <p>Тасок нет</p>
@@ -136,20 +138,20 @@ export const TodolistItem: React.FC<Props> = ({
                 <Box sx={containerSx}>
                     <Button variant={todolist.filter === 'ALL' ? 'outlined' : 'text'}
                             color={'inherit'}
-                            onClick={() => changeFilterHandler('ALL')}
+                            onClick={() => changeFilter('ALL')}
                             sx={{m: '0 3px'}}
                     >
                         All
                     </Button>
                     <Button variant={todolist.filter === 'ACTIVE' ? 'outlined' : 'text'}
                             color={'primary'}
-                            onClick={() => changeFilterHandler('ACTIVE')}
+                            onClick={() => changeFilter('ACTIVE')}
                             sx={{m: '0 3px'}}>
                         ACTIVE
                     </Button>
                     <Button variant={todolist.filter === 'COMPLETED' ? 'outlined' : 'text'}
                             color={'secondary'}
-                            onClick={() => changeFilterHandler('COMPLETED')}
+                            onClick={() => changeFilter('COMPLETED')}
                             sx={{m: '0 3px'}}>
                         COMPLETED
                     </Button>
