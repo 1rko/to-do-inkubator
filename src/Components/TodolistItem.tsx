@@ -1,4 +1,3 @@
-import {FilterValues, Task, Todolist} from '../app/App.tsx'
 import {ChangeEvent} from "react";
 import {useAutoAnimate} from '@formkit/auto-animate/react'
 import '../app/App.css'
@@ -13,16 +12,14 @@ import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem'
 import Box from '@mui/material/Box'
 import {containerSx, getListItemSx} from "./сreateItemForm/TodolistItem.styles.ts";
+import {useAppDispatch} from "@/common/hooks/useAppDispatch.ts";
+import {useAppSelector} from "@/common/hooks/useAppSelector.ts";
+import {selectTasks} from "@/model/tasks-selectors.ts";
+import {changeTaskStatusAC, changeTaskTitleAC, createTaskAC, deleteTaskAC, Task} from "@/model/tasks-reducer.ts";
+import {changeTodolistFilterAC, FilterValues, Todolist} from "@/model/todolists-reducer.ts";
 
 type Props = {
     todolist: Todolist
-    tasks: Task[]
-    deleteTask: (todolistId: string, taskId: string) => void
-    deleteAllTasks: (todolistId: string) => void
-    createTask: (todolistId: string, title: string) => void
-    changeTaskStatus: (todolistId: string, id: string, newStatusValue: boolean) => void
-    changeTaskTitle: (todolistId: string, id: string, newValue: string) => void
-    changeFilter: (todolistId: string, filter: FilterValues) => void
     deleteTodolist: (todolistId: string) => void
     changeTodolistTitle: (todolistId: string, newValue: string) => void
     children?: React.ReactNode
@@ -30,33 +27,24 @@ type Props = {
 
 export const TodolistItem: React.FC<Props> = ({
                                                   children,
-
                                                   todolist,
-                                                  tasks,
-                                                  deleteTask,
-                                                  deleteAllTasks,
-                                                  createTask,
-                                                  changeFilter,
-                                                  changeTaskStatus,
                                                   deleteTodolist,
-                                                  changeTaskTitle,
                                                   changeTodolistTitle
                                               }: Props) => {
 
+
+    const dispatch = useAppDispatch()
+
+    const tasks = useAppSelector(selectTasks)
+
+    const todolistTasks = tasks[todolist.id]
+
     const changeFilterHandler = (filter: FilterValues) => {
-        changeFilter(todolist.id, filter)
+        dispatch(changeTodolistFilterAC({id: todolist.id, filter}))
     }
 
     const createTaskHandler = (title: string) => {
-        createTask(todolist.id, title)
-    }
-
-    const deleteTaskHandler = (taskId: string) => {
-        deleteTask(todolist.id, taskId)
-    }
-
-    const deleteAllTasksHandler = () => {
-        deleteAllTasks(todolist.id)
+        dispatch(createTaskAC({todolistId: todolist.id, title}))
     }
 
     const getFilteredTasks = (tasks: Task[]): Task[] => {
@@ -72,16 +60,13 @@ export const TodolistItem: React.FC<Props> = ({
             case "COMPLETED":
                 filteredTasks = tasks.filter(task => task.isDone)
                 break
-            case "FIRST3":
-                filteredTasks = tasks.filter((task, index) => index < 3)
-                break
         }
         return filteredTasks
     }
 
     const changeTaskStatusHandler = (e: ChangeEvent<HTMLInputElement>, taskId: string) => {
         let newStatusValue = e.currentTarget.checked
-        changeTaskStatus(todolist.id, taskId, newStatusValue)
+        dispatch(changeTaskStatusAC({todolistId: todolist.id, taskId, isDone: newStatusValue}))
     }
 
     const deleteTodolistHandler = () => {
@@ -92,14 +77,14 @@ export const TodolistItem: React.FC<Props> = ({
         changeTodolistTitle(todolist.id, newTitle)
     }
 
-    let renderedTasks = getFilteredTasks(tasks).map(task => {
+    let renderedTasks = getFilteredTasks(todolistTasks).map(task => {
 
         const changeTaskTitleHandler = (title: string) => {
-            changeTaskTitle(todolist.id, task.id, title)
+            dispatch(changeTaskTitleAC({todolistId: todolist.id, taskId: task.id, title}))
         }
 
         const deleteOneTaskHandler = () => {
-            deleteTaskHandler(task.id)
+            dispatch(deleteTaskAC({todolistId: todolist.id, taskId: task.id}))
         }
 
         return (
@@ -114,11 +99,6 @@ export const TodolistItem: React.FC<Props> = ({
                     inputProps={{'aria-label': 'controlled'}}
                     size={'small'}
                 />
-                {/*<input
-                    type="checkbox"
-                    checked={task.isDone}
-                    onChange={(e) => changeTaskStatusHandler(e, task.id)}
-                />*/}
                 <EditableSpan
                     value={task.title}
                     onChange={changeTaskTitleHandler}
@@ -173,18 +153,6 @@ export const TodolistItem: React.FC<Props> = ({
                             sx={{m: '0 3px'}}>
                         COMPLETED
                     </Button>
-                    {/* <Button variant={todolist.filter === 'FIRST3' ? 'outlined' : 'text'}
-                            color={'success'}
-                            onClick={() => changeFilterHandler('FIRST3')}
-                            sx={{m: '0 3px'}}>
-                        First 3 tasks
-                    </Button>
-                    <Button variant={'contained'}
-                            color={'error'}
-                            onClick={deleteAllTasksHandler}
-                            sx={{m: '0 3px'}}>
-                        DELETE ALL TASKS
-                    </Button>*/}
                 </Box>
             </div>
             {

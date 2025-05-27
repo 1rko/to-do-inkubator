@@ -12,10 +12,7 @@ import {changeThemeModeAC} from "@/app/app-reducer.ts";
 import {getTheme} from "@/common/theme/theme.ts";
 import {useAppDispatch} from "@/common/hooks/useAppDispatch.ts";
 
-type Props = {
-
-};
-export const Header = (props: Props) => {
+export const Header = () => {
     const dispatch = useAppDispatch()
 
     //Тема - стилизация
