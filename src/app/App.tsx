@@ -1,7 +1,6 @@
 import './App.css'
-import {TodolistItem} from "../Components/TodolistItem.tsx";
-import {useState} from "react";
-import {CreateItemForm} from "../Components/сreateItemForm/CreateItemForm.tsx";
+import {TodolistItem} from "@/Components/TodolistItem.tsx";
+import {CreateItemForm} from "@/Components/сreateItemForm/CreateItemForm.tsx";
 
 import AppBar from '@mui/material/AppBar'
 import Toolbar from '@mui/material/Toolbar'
@@ -10,9 +9,9 @@ import MenuIcon from '@mui/icons-material/Menu'
 import Container from '@mui/material/Container'
 import Grid from '@mui/material/Grid'
 import Paper from '@mui/material/Paper'
-import {containerSx} from '../Components/сreateItemForm/TodolistItem.styles.ts';
-import {NavButton} from '../Components/NavButton.ts';
-import {createTheme, ThemeProvider} from '@mui/material/styles'
+import {containerSx} from '@/Components/сreateItemForm/TodolistItem.styles.ts';
+import {NavButton} from '@/Components/NavButton.ts';
+import { ThemeProvider} from '@mui/material/styles'
 import Switch from '@mui/material/Switch'
 import CssBaseline from '@mui/material/CssBaseline'
 import {
@@ -20,20 +19,23 @@ import {
     changeTodolistTitleAC,
     createTodolistAC,
     deleteTodolistAC,
-    } from "../model/todolists-reducer.ts";
+    } from "@/model/todolists-reducer.ts";
 import {
     changeTaskStatusAC,
     changeTaskTitleAC,
     createTaskAC,
     deleteAllTasksAC,
     deleteTaskAC,
-    } from "../model/tasks-reducer.ts";
-import {useAppDispatch} from "../common/hooks/useAppDispatch.ts";
-import {useAppSelector} from "../common/hooks/useAppSelector.ts";
-import {selectTasks} from "../model/tasks-selectors.ts";
-import {selectTodolists} from "../model/todolists-selectors.ts";
+    } from "@/model/tasks-reducer.ts";
+import {useAppDispatch} from "@/common/hooks/useAppDispatch.ts";
+import {useAppSelector} from "@/common/hooks/useAppSelector.ts";
+import {getTheme} from "@/common/theme/theme.ts";
+import {selectTasks} from "@/model/tasks-selectors.ts";
+import {selectTodolists} from "@/model/todolists-selectors.ts";
+import {changeThemeModeAC} from '@/app/app-reducer.ts';
+import {selectThemeMode} from "@/app/app-selectors.ts";
+import {Header} from "@/common/common/components/Header.tsx";
 
-type ThemeMode = 'dark' | 'light'
 
 export type Task = {
     id: string
@@ -56,26 +58,12 @@ export type TaskState = {
 //То же самое, что и export type TasksState = Record<string, Task[]>
 
 export const App = () => {
-    console.log('App rendered')
     const dispatch = useAppDispatch()
     const todolists = useAppSelector(selectTodolists)
     const tasks = useAppSelector(selectTasks)
 
-    //Тема - стилизация
-    const [themeMode, setThemeMode] = useState<ThemeMode>('light')
-
-    const changeMode = () => {
-        setThemeMode(themeMode === 'light' ? 'dark' : 'light')
-    }
-
-    const theme = createTheme({
-        palette: {
-            mode: themeMode,
-            primary: {
-                main: '#fd7c00',
-            },
-        },
-    })
+    const themeMode = useAppSelector(selectThemeMode)
+    const theme = getTheme(themeMode)
 
 //TASKS
     const createTask = (todolistId: string, title: string) => {
@@ -119,21 +107,8 @@ export const App = () => {
         <div className={'app'}>
             <ThemeProvider theme={theme}>
                 <CssBaseline/>
-                <AppBar position="static" sx={{mb: '30px'}}>
-                    <Toolbar>
-                        <Container maxWidth={'lg'} sx={containerSx}>
-                            <IconButton color="inherit">
-                                <MenuIcon/>
-                            </IconButton>
-                            <div>
-                                <NavButton color="inherit">Sign in</NavButton>
-                                <NavButton color="inherit">Sign up</NavButton>
-                                <NavButton color="inherit" background={theme.palette.primary.dark}>Faq</NavButton>
-                                <Switch color={'default'} onChange={changeMode}/>
-                            </div>
-                        </Container>
-                    </Toolbar>
-                </AppBar>
+
+                <Header/>
 
                 <Container maxWidth={'lg'}>
                     <Grid container>
