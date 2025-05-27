@@ -22,18 +22,13 @@ export const TodolistItem: React.FC<Props> = ({
     const createTask = (title: string) => {
         dispatch(createTaskAC({todolistId: todolist.id, title}))
     }
-
     // @ts-ignore
     return (<>
             <div>
                 <TodolistTitle todolist={todolist}/>
-
                 <CreateItemForm onCreateItem={createTask}/>
-
                 <Tasks todolist={todolist}/>
-
                 <FilterButtons todolist={todolist}/>
-
             </div>
             {
                 children
