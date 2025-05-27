@@ -4,6 +4,13 @@ import '../app/App.css'
 import {CreateItemForm} from "./сreateItemForm/CreateItemForm.tsx";
 import {EditableSpan} from "./editableSpan/EditableSpan.tsx";
 
+import {containerSx, getListItemSx} from "./сreateItemForm/TodolistItem.styles.ts";
+import {useAppDispatch} from "@/common/hooks/useAppDispatch.ts";
+import {useAppSelector} from "@/common/hooks/useAppSelector.ts";
+import {selectTasks} from "@/model/tasks-selectors.ts";
+import {changeTaskStatusAC, changeTaskTitleAC, createTaskAC, deleteTaskAC, Task} from "@/model/tasks-reducer.ts";
+import {changeTodolistFilterAC, FilterValues, Todolist} from "@/model/todolists-reducer.ts";
+
 import IconButton from '@mui/material/IconButton'
 import DeleteIcon from '@mui/icons-material/Delete'
 import Button from '@mui/material/Button'
@@ -11,18 +18,7 @@ import Checkbox from '@mui/material/Checkbox';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem'
 import Box from '@mui/material/Box'
-import {containerSx, getListItemSx} from "./сreateItemForm/TodolistItem.styles.ts";
-import {useAppDispatch} from "@/common/hooks/useAppDispatch.ts";
-import {useAppSelector} from "@/common/hooks/useAppSelector.ts";
-import {selectTasks} from "@/model/tasks-selectors.ts";
-import {changeTaskStatusAC, changeTaskTitleAC, createTaskAC, deleteTaskAC, Task} from "@/model/tasks-reducer.ts";
-import {
-    changeTodolistFilterAC,
-    changeTodolistTitleAC,
-    deleteTodolistAC,
-    FilterValues,
-    Todolist
-} from "@/model/todolists-reducer.ts";
+import {TodolistTitle} from "@/TodolistTitle.tsx";
 
 type Props = {
     todolist: Todolist
@@ -41,13 +37,13 @@ export const TodolistItem: React.FC<Props> = ({
 
     const todolistTasks = tasks[todolist.id]
 
-    const deleteTodolist = () => {
+   /* const deleteTodolist = () => {
         dispatch(deleteTodolistAC({id: todolist.id}))
     }
 
     const changeTodolistTitle = (newValue: string) => {
         dispatch(changeTodolistTitleAC({id: todolist.id, title: newValue}))
-    }
+    }*/
 
     const createTask = (title: string) => {
         dispatch(createTaskAC({todolistId: todolist.id, title}))
@@ -117,14 +113,7 @@ export const TodolistItem: React.FC<Props> = ({
     // @ts-ignore
     return (<>
             <div>
-                <div className={'container'}>
-                    <h3>
-                        <EditableSpan value={todolist.title} onChange={changeTodolistTitle}/>
-                    </h3>
-                    <IconButton onClick={deleteTodolist}>
-                        <DeleteIcon/>
-                    </IconButton>
-                </div>
+                <TodolistTitle todolist={todolist}/>
 
                 <CreateItemForm onCreateItem={createTask}/>
 
